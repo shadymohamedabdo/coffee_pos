@@ -6,7 +6,10 @@ class ProductsRepository {
 
   Future<List<Product>> getAllProducts() async {
     final db = await dbHelper.database;
-    final result = await db.query('products');
+    final result = await db.query(
+      'products',
+      orderBy: 'name ASC',
+    );
     return result.map((e) => Product.fromMap(e)).toList();
   }
 
@@ -39,6 +42,16 @@ class ProductsRepository {
       whereArgs: [product.id],
     );
   }
+  Future<void> updateProductPrice(int productId, double newPrice) async {
+    final db = await dbHelper.database;
+    await db.update(
+      'products',
+      {'price': newPrice},
+      where: 'id = ?',
+      whereArgs: [productId],
+    );
+  }
+
 
   Future<void> deleteProduct(int id) async {
     final db = await dbHelper.database;

@@ -41,7 +41,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
   void applyFilters() {
     final query = searchCtrl.text.toLowerCase();
     filteredProducts = products.where((p) {
-      final categoryMatch = filterCategory == 'all' || p.category == filterCategory;
+      final categoryMatch =
+          filterCategory == 'all' || p.category == filterCategory;
       final unitMatch = filterUnit == 'all' || p.unit == filterUnit;
       final searchMatch = p.name.toLowerCase().contains(query);
       return categoryMatch && unitMatch && searchMatch;
@@ -60,8 +61,44 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
     nameCtrl.clear();
     priceCtrl.clear();
-
     loadProducts();
+  }
+
+  void showEditPriceDialog(Product product) {
+    final editPriceCtrl =
+    TextEditingController(text: product.price.toString());
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('تعديل سعر ${product.name}'),
+        content: TextField(
+          controller: editPriceCtrl,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'السعر الجديد',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newPrice = double.tryParse(editPriceCtrl.text);
+              if (newPrice == null) return;
+
+              await repo.updateProductPrice(product.id, newPrice);
+              Navigator.pop(context);
+              loadProducts();
+            },
+            child: const Text('حفظ'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -110,7 +147,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         initialValue: category,
                         items: const [
                           DropdownMenuItem(value: 'bean', child: Text('بن')),
-                          DropdownMenuItem(value: 'drink', child: Text('مشروب')),
+                          DropdownMenuItem(
+                              value: 'drink', child: Text('مشروب')),
                         ],
                         onChanged: (v) => setState(() => category = v!),
                         decoration: const InputDecoration(
@@ -147,11 +185,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
             const SizedBox(width: 20),
 
-            // ===== قائمة المنتجات مع البحث والفلاتر =====
+            // ===== قائمة المنتجات =====
             Expanded(
               child: Column(
                 children: [
-                  // ===== البحث =====
                   TextField(
                     controller: searchCtrl,
                     decoration: const InputDecoration(
@@ -159,69 +196,18 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(),
                     ),
-                    onChanged: (_) {
-                      setState(() {
-                        applyFilters();
-                      });
-                    },
+                    onChanged: (_) => setState(applyFilters),
                   ),
                   const SizedBox(height: 12),
-
-                  // ===== الفلاتر =====
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          initialValue: filterCategory,
-                          items: const [
-                            DropdownMenuItem(value: 'all', child: Text('الكل')),
-                            DropdownMenuItem(value: 'bean', child: Text('بن')),
-                            DropdownMenuItem(value: 'drink', child: Text('مشروب')),
-                          ],
-                          onChanged: (v) => setState(() {
-                            filterCategory = v!;
-                            applyFilters();
-                          }),
-                          decoration: const InputDecoration(
-                            labelText: 'الفئة',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          initialValue: filterUnit,
-                          items: const [
-                            DropdownMenuItem(value: 'all', child: Text('الكل')),
-                            DropdownMenuItem(value: 'kg', child: Text('كيلو')),
-                            DropdownMenuItem(value: 'cup', child: Text('كوب')),
-                          ],
-                          onChanged: (v) => setState(() {
-                            filterUnit = v!;
-                            applyFilters();
-                          }),
-                          decoration: const InputDecoration(
-                            labelText: 'الوحدة',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // ===== الجدول =====
                   Expanded(
                     child: Card(
                       child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
                         child: DataTable(
                           columns: const [
                             DataColumn(label: Text('الاسم')),
                             DataColumn(label: Text('السعر')),
                             DataColumn(label: Text('الوحدة')),
-                            DataColumn(label: Text('')),
+                            DataColumn(label: Text('إجراءات')),
                           ],
                           rows: filteredProducts.map((p) {
                             return DataRow(cells: [
@@ -229,12 +215,23 @@ class _ProductsScreenState extends State<ProductsScreen> {
                               DataCell(Text('${p.price}')),
                               DataCell(Text(p.unit)),
                               DataCell(
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () async {
-                                    await repo.deleteProduct(p.id);
-                                    loadProducts();
-                                  },
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit,
+                                          color: Colors.blue),
+                                      onPressed: () =>
+                                          showEditPriceDialog(p),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () async {
+                                        await repo.deleteProduct(p.id);
+                                        loadProducts();
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
                             ]);

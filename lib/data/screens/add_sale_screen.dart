@@ -22,18 +22,19 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
   double quantity = 1.0;
   double? amount; // لو الموظف دخل مبلغ محدد
 
-  List<Map<String, dynamic>> products = [];
+  List<Map<String, dynamic>> products = []; // mutable list
   final qtyController = TextEditingController(text: '1');
   final amountController = TextEditingController();
 
-  // تحميل المنتجات حسب النوع
+  // ===== تحميل المنتجات حسب النوع =====
   Future<void> loadProducts(String category) async {
     final data = await productsRepo.getProductsByCategory(category);
     setState(() {
-      products = data;
+      products = List<Map<String, dynamic>>.from(data); // 👈 mutable copy
     });
   }
 
+  // ===== حفظ عملية البيع =====
   Future<void> saveSale() async {
     if (selectedCategory == null || selectedProductId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -64,11 +65,11 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
       const SnackBar(content: Text('تم تسجيل البيع')),
     );
 
-    // reset
+    // ===== reset form =====
     setState(() {
       selectedCategory = null;
       selectedProductId = null;
-      products.clear();
+      products = []; // 👈 بدل clear
       quantity = 1.0;
       amount = null;
       qtyController.text = '1';
@@ -153,8 +154,6 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
             },
           ),
           const SizedBox(height: 8),
-
-          // ======= الشريط الملون =======
           Text(
             'المبلغ مقابل الكمية: ${quantity.toStringAsFixed(3)} كيلو = ${(amount ?? quantity * unitPrice).toStringAsFixed(2)} جنيه',
             style: TextStyle(
@@ -163,10 +162,7 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 12),
-
-          // الإجمالي
           Text(
             'الإجمالي: ${(amount ?? quantity * unitPrice).toStringAsFixed(2)} جنيه',
             style: const TextStyle(
@@ -198,8 +194,6 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
             },
           ),
           const SizedBox(height: 8),
-
-          // ======= الشريط الملون =======
           Text(
             'المبلغ مقابل الكمية: ${quantity.toStringAsFixed(3)} وحدة = ${(amount ?? quantity * unitPrice).toStringAsFixed(2)} جنيه',
             style: TextStyle(
@@ -208,10 +202,7 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 12),
-
-          // الإجمالي
           Text(
             'الإجمالي: ${(amount ?? quantity * unitPrice).toStringAsFixed(2)} جنيه',
             style: const TextStyle(
@@ -250,7 +241,7 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
                       selectedCategory = v;
                       selectedProductId = null;
                       unitPrice = 0;
-                      products.clear();
+                      products = []; // 👈 بدل clear
                       quantity = 1.0;
                       amount = null;
                       qtyController.text = '1';
@@ -266,7 +257,7 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
 
                 const SizedBox(height: 16),
 
-                // اختيار المنتج حسب النوع
+                // اختيار المنتج
                 if (selectedCategory != null)
                   DropdownButtonFormField<int>(
                     value: selectedProductId,

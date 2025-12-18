@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2, // خلي version = 2 عشان نقدر نعمل upgrade للـ columns الجديدة
+      version: 4, // خلي version = 2 عشان نقدر نعمل upgrade للـ columns الجديدة
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -75,20 +75,15 @@ class DatabaseHelper {
 
   // تحديث قاعدة البيانات القديمة
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    // لو نسخة القاعدة القديمة أقل من 2
-    if (oldVersion < 2) {
-      final tableInfo = await db.rawQuery('PRAGMA table_info(sales)');
-      final columns = tableInfo.map((c) => c['name'].toString()).toList();
-
-      if (!columns.contains('status')) {
-        await db.execute(
-            'ALTER TABLE sales ADD COLUMN status TEXT DEFAULT "active"');
-      }
-
-      if (!columns.contains('created_at')) {
-        await db.execute('ALTER TABLE sales ADD COLUMN created_at TEXT');
-      }
+    if (oldVersion < 4) {
+      await db.update(
+        'users',
+        {'username': 'shady'},
+        where: 'role = ?',
+        whereArgs: ['admin'],
+      );
     }
+
   }
 
   // إنشاء Admin افتراضي
@@ -103,7 +98,7 @@ class DatabaseHelper {
       await db.insert('users', {
         'name': 'Admin',
         'role': 'admin',
-        'username': 'admin',
+        'username': 'shady',
         'password': '1234',
       });
     }

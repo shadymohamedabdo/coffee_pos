@@ -42,6 +42,7 @@ class ProductsRepository {
       whereArgs: [product.id],
     );
   }
+
   Future<void> updateProductPrice(int productId, double newPrice) async {
     final db = await dbHelper.database;
     await db.update(
@@ -61,9 +62,9 @@ class ProductsRepository {
       whereArgs: [id],
     );
   }
+
   Future<List<Map<String, dynamic>>> getProductsByCategory(String category) async {
     final db = await dbHelper.database;
-
     return await db.query(
       'products',
       where: 'category = ?',

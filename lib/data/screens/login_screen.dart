@@ -14,24 +14,53 @@ class _LoginScreenState extends State<LoginScreen> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
-  Future<void> login() async {
-    final user = await repo.login(
-      usernameController.text,
-      passwordController.text,
-    );
+  bool isLoading = false; // ← جديد
 
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => HomeScreen(currentUser: user),
-        ),
+  Future<void> login() async {
+    if (isLoading) return; // منع الضغط المتكرر
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final user = await repo.login(
+        usernameController.text.trim(),
+        passwordController.text,
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('اسم المستخدم أو كلمة المرور خطأ')),
-      );
+
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => HomeScreen(currentUser: user),
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('اسم المستخدم أو كلمة المرور خطأ')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('حدث خطأ، حاول مرة أخرى')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -49,19 +78,37 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   TextField(
                     controller: usernameController,
-                    decoration: const InputDecoration(labelText: 'اسم المستخدم'),
+                    textInputAction: TextInputAction.next,
+                    decoration: const InputDecoration(
+                      labelText: 'اسم المستخدم',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(labelText: 'كلمة المرور'),
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => login(),
+                    decoration: const InputDecoration(
+                      labelText: 'كلمة المرور',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: login,
-                    child: const Text('تسجيل الدخول'),
-                  )
+                    onPressed: isLoading ? null : login,
+                    child: isLoading
+                        ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                        : const Text('تسجيل الدخول'),
+                  ),
                 ],
               ),
             ),

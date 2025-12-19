@@ -38,7 +38,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE products (
+      CREATE TABLE products(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         category TEXT,

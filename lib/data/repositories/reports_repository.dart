@@ -20,7 +20,7 @@ class ReportsRepository {
       JOIN products p ON s.product_id = p.id
       WHERE strftime('%m', s.created_at) = ?
       AND strftime('%Y', s.created_at) = ?
+      AND s.status = 'active'  -- 🔥 السطر ده هو اللي هيحل المشكلة
       GROUP BY s.product_id
-    ''', [monthStr, year.toString()]);
-  }
+    ''', [monthStr, year.toString()]);  }
 }

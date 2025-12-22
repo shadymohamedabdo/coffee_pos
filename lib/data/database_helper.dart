@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -6,6 +8,11 @@ class DatabaseHelper {
   static Database? _db;
 
   DatabaseHelper._init();
+  // StreamController عشان يراقب التغييرات في جدول المبيعات
+  static final _salesStreamController = StreamController<void>.broadcast();
+  static Stream<void> get salesStream => _salesStreamController.stream;
+
+
 
   Future<Database> get database async {
     if (_db != null) return _db!;
@@ -19,8 +26,18 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 7, // 👈 غيرنا الرقم من 5 لـ 6
       onCreate: _createDB,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 7) {
+          // هنا بنقوله لو النسخة قديمة، امسح الجداول القديمة واعملها من جديد
+          await db.execute("DROP TABLE IF EXISTS sales");
+          await db.execute("DROP TABLE IF EXISTS products");
+          await db.execute("DROP TABLE IF EXISTS users");
+          await db.execute("DROP TABLE IF EXISTS shifts");
+          await _createDB(db, newVersion);
+        }
+      },
     );
   }
 
@@ -74,6 +91,10 @@ class DatabaseHelper {
     ''');
 
     await _createDefaultAdmin(db);
+  }
+  // دالة بناديها لما نغير أي حاجة في المبيعات
+  static void notifySalesChanged() {
+    _salesStreamController.add(null);
   }
 
   Future<void> _createDefaultAdmin(Database db) async {

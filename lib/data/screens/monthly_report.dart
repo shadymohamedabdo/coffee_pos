@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../monthly_report_cubit/monthly_report_cubit.dart';
-import '../sale_cubit/sales_refresh_cubit.dart';
 
 class MonthlyReportScreen extends StatelessWidget {
   const MonthlyReportScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SalesRefreshCubit, int>(
-      listener: (context, _) {
-        // 🔥 أي إلغاء أو تفعيل أوردر في الشيفت → إعادة تحميل التقرير الشهري فورًا
-        context.read<MonthlyReportCubit>().reloadCurrentMonth();
-      },
-      child: const MonthlyReportView(),
-    );
+    return const MonthlyReportView();
   }
 }
 

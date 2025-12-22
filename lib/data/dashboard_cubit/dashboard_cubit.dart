@@ -2,21 +2,15 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../repositories/dashboard_repository.dart';
-import '../sale_cubit/sales_refresh_cubit.dart';
 import 'dashboard_state.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
   final DashboardRepository repo;
-  final SalesRefreshCubit refreshCubit;
   late final StreamSubscription refreshSub;
 
-  DashboardCubit(this.repo, this.refreshCubit) : super(DashboardInitial()) {
+  DashboardCubit(this.repo, ) : super(DashboardInitial()) {
     loadData();
 
-    // 👇 سامع لأي refresh
-    refreshSub = refreshCubit.stream.listen((_) {
-      loadData();
-    });
   }
 
   Future<void> loadData() async {

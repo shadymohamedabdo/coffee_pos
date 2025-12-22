@@ -142,8 +142,6 @@ class AddSaleCubit extends Cubit<AddSaleState> {
         unitPrice: state.unitPrice,
       );
 
-      // ⭐⭐⭐ هنا السطر المهم ⭐⭐⭐
-      context.read<ShiftReportCubit>().reloadCurrentShift();
       context.read<MonthlyReportCubit>().reloadCurrentMonth();
 
 

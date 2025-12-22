@@ -6,10 +6,11 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'data/dashboard_cubit/dashboard_cubit.dart';
 import 'data/monthly_report_cubit/monthly_report_cubit.dart';
 import 'data/sale_cubit/sale_cubit.dart';
-import 'data/sale_cubit/sales_refresh_cubit.dart';
 import 'data/screens/login_screen.dart';
 import 'data/service_locator.dart';
 import 'data/user_cubit/user_cubit.dart';
+
+
 
 void main() {
   setupServiceLocator();
@@ -26,18 +27,14 @@ class CoffeePOSApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final salesRefreshCubit = getIt<SalesRefreshCubit>();
 
     return MultiBlocProvider(
       providers: [
-        // المصدر المركزي للإشعارات
-        BlocProvider<SalesRefreshCubit>.value(value: salesRefreshCubit),
-
         BlocProvider<DashboardCubit>(
           create: (_) => getIt<DashboardCubit>()..loadData(),
         ),
         BlocProvider<ShiftReportCubit>(
-          create: (_) => getIt<ShiftReportCubit>(),
+          create: (_) => getIt<ShiftReportCubit>()..loadShifts(),
         ),
         BlocProvider<MonthlyReportCubit>(
           create: (_) => getIt<MonthlyReportCubit>(),
@@ -61,4 +58,6 @@ class CoffeePOSApp extends StatelessWidget {
     );
   }
 }
+
+
 

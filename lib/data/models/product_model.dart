@@ -13,6 +13,7 @@ class Product {
     required this.price,
   });
 
+
   factory Product.fromMap(Map<String, dynamic> map) {
     return Product(
       id: map['id'],
@@ -22,4 +23,5 @@ class Product {
       price: map['price'],
     );
   }
+
 }

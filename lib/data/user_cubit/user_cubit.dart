@@ -5,20 +5,20 @@ import '../repositories/users_repository.dart';
 class UsersCubit extends Cubit<UsersState> {
   final UsersRepository repo;
 
-  UsersCubit(this.repo) : super(UsersInitial());
+  UsersCubit(this.repo) : super(UsersInitial()) {
+    loadEmployees();
+  }
 
-  // ===== جلب الموظفين =====
   Future<void> loadEmployees() async {
     emit(UsersLoading());
     try {
       final employees = await repo.getAllEmployees();
       emit(UsersLoaded(employees));
-    } catch (e) {
-      emit(UsersError('فشل تحميل البيانات'));
+    } catch (_) {
+      emit(UsersError('فشل تحميل الموظفين'));
     }
   }
 
-  // ===== إضافة موظف =====
   Future<void> addEmployee({
     required String name,
     required String username,
@@ -32,20 +32,18 @@ class UsersCubit extends Cubit<UsersState> {
         password: password,
         role: role,
       );
-      await loadEmployees(); // ✅ تحديث البيانات بعد الإضافة
-    } catch (e) {
-      emit(UsersError('فشل إضافة الموظف: ${e.toString()}'));
+      await loadEmployees();
+    } catch (_) {
+      emit(UsersError('فشل إضافة المستخدم'));
     }
   }
 
-  // ===== حذف موظف =====
   Future<void> deleteEmployee(int id) async {
     try {
-      final db = await repo.dbHelper.database;
-      await db.delete('users', where: 'id = ?', whereArgs: [id]);
-      await loadEmployees(); // تحديث البيانات بعد الحذف
-    } catch (e) {
-      emit(UsersError('فشل حذف الموظف'));
+      await repo.deleteUser(id);
+      await loadEmployees();
+    } catch (_) {
+      emit(UsersError('فشل الحذف'));
     }
   }
 }

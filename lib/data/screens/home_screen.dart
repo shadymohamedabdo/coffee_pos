@@ -1,4 +1,5 @@
 import 'package:coffee_pos/data/screens/profit_calculator.dart';
+import 'package:coffee_pos/data/screens/monthly_report.dart';
 import 'package:flutter/material.dart';
 import 'add_sale_screen.dart';
 import 'dashboard_screen.dart';
@@ -7,7 +8,6 @@ import 'shift_report_screen.dart';
 import 'shift_screen.dart';
 import 'products_screen.dart';
 import 'add_employee_screen.dart';
-import 'report_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final Map<String, dynamic> currentUser;
@@ -32,7 +32,7 @@ class HomeScreen extends StatelessWidget {
           ),
         );
       },
-      isMain: true,
+      isMain: true, // عشان يبقى أكبر وأبرز
     );
 
     // باقي الأزرار
@@ -50,7 +50,6 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-
       if (isAdmin)
         _buildMenuItem(
           label: 'التقرير الشهري',
@@ -61,21 +60,16 @@ class HomeScreen extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const MonthlyReportScreen()),
           ),
         ),
-
-      // ✅ زرار حاسبة صافي الربح
       if (isAdmin)
         _buildMenuItem(
-          label: 'حاسبة صافي الربح',
+          label: 'حاسبة صافي الربح', // ← الزر الجديد
           icon: Icons.calculate,
-          color: Colors.indigo[600]!,
+          color: Colors.teal[500]!,
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const ProfitCalculatorScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const ProfitCalculatorScreen()),
           ),
         ),
-
       if (isAdmin)
         _buildMenuItem(
           label: 'لوحة التحكم',
@@ -86,7 +80,6 @@ class HomeScreen extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const DashboardScreen()),
           ),
         ),
-
       if (isAdmin)
         _buildMenuItem(
           label: 'إدارة الشيفتات',
@@ -97,7 +90,6 @@ class HomeScreen extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const ShiftScreen()),
           ),
         ),
-
       if (isAdmin)
         _buildMenuItem(
           label: 'إدارة المنتجات',
@@ -108,7 +100,6 @@ class HomeScreen extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const ProductsScreen()),
           ),
         ),
-
       if (isAdmin)
         _buildMenuItem(
           label: 'إدارة الموظفين',
@@ -154,10 +145,8 @@ class HomeScreen extends StatelessWidget {
           ),
           childrenDelegate: SliverChildListDelegate([
             ...otherButtons,
-
             if (otherButtons.length % 2 != 0 && !isLargeScreen)
               const SizedBox.shrink(),
-
             Center(child: mainSaleButton),
           ]),
         ),

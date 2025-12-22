@@ -19,16 +19,15 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 4, // خلي version = 2 عشان نقدر نعمل upgrade للـ columns الجديدة
+      version: 5,
       onCreate: _createDB,
-      onUpgrade: _upgradeDB,
     );
   }
 
-  // إنشاء الجداول عند أول تشغيل
   Future<void> _createDB(Database db, int version) async {
+    // جدول المستخدمين
     await db.execute('''
-      CREATE TABLE users (
+      CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         role TEXT,
@@ -37,8 +36,9 @@ class DatabaseHelper {
       )
     ''');
 
+    // جدول المنتجات
     await db.execute('''
-      CREATE TABLE products(
+      CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         category TEXT,
@@ -47,17 +47,9 @@ class DatabaseHelper {
       )
     ''');
 
+    // جدول المبيعات
     await db.execute('''
-      CREATE TABLE shifts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        type TEXT,
-        date TEXT,
-        is_open INTEGER
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE sales (
+      CREATE TABLE IF NOT EXISTS sales (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         product_id INTEGER,
         quantity REAL,
@@ -70,23 +62,20 @@ class DatabaseHelper {
       )
     ''');
 
+
+    // جدول الشيفتات
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS shifts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT,
+        date TEXT,
+        is_open INTEGER
+      )
+    ''');
+
     await _createDefaultAdmin(db);
   }
 
-  // تحديث قاعدة البيانات القديمة
-  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 4) {
-      await db.update(
-        'users',
-        {'username': 'shady'},
-        where: 'role = ?',
-        whereArgs: ['admin'],
-      );
-    }
-
-  }
-
-  // إنشاء Admin افتراضي
   Future<void> _createDefaultAdmin(Database db) async {
     final result = await db.query(
       'users',
@@ -96,7 +85,7 @@ class DatabaseHelper {
 
     if (result.isEmpty) {
       await db.insert('users', {
-        'name': 'Admin',
+        'name': 'شادي',
         'role': 'admin',
         'username': 'shady',
         'password': '1234',

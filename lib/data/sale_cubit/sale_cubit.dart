@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../monthly_report_cubit/monthly_report_cubit.dart';
 import '../repositories/products_repository.dart';
 import '../repositories/sales_repository.dart';
 import '../repositories/shifts_repository.dart';
+import '../shift_report_cubit/shift_report_cubit.dart';
 
 class AddSaleState {
   final String? selectedCategory; // 'bean' أو 'drink' أو null
@@ -110,7 +113,10 @@ class AddSaleCubit extends Cubit<AddSaleState> {
     emit(AddSaleState());
   }
 
-  Future<void> saveSale(int userId) async {
+  Future<void> saveSale({
+    required int userId,
+    required BuildContext context,
+  }) async {
     if (state.selectedCategory == null || state.selectedProductId == null) {
       emit(state.copyWith(errorMessage: 'اختار النوع والمنتج'));
       return;
@@ -136,6 +142,11 @@ class AddSaleCubit extends Cubit<AddSaleState> {
         unitPrice: state.unitPrice,
       );
 
+      // ⭐⭐⭐ هنا السطر المهم ⭐⭐⭐
+      context.read<ShiftReportCubit>().reloadCurrentShift();
+      context.read<MonthlyReportCubit>().reloadCurrentMonth();
+
+
       emit(state.copyWith(isSaving: false, saleSuccess: true));
       resetForm();
     } catch (e) {
@@ -145,4 +156,5 @@ class AddSaleCubit extends Cubit<AddSaleState> {
       ));
     }
   }
+
 }

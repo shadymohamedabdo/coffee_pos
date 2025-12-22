@@ -2,6 +2,12 @@ import '../database_helper.dart';
 
 class UsersRepository {
   final dbHelper = DatabaseHelper.instance;
+  // users_repository.dart
+  Future<void> deleteUser(int id) async {
+    final db = await dbHelper.database;
+    await db.delete('users', where: 'id = ?', whereArgs: [id]);
+  }
+
 
   // ===== إضافة موظف =====
   Future<void> addUser({
@@ -25,10 +31,11 @@ class UsersRepository {
     final db = await dbHelper.database;
     return await db.query(
       'users',
-      where: 'role = ?',
-      whereArgs: ['employee'],
+      // احذف where لو عايز كل المستخدمين
+      // or استخدم شرط يناسبك
     );
   }
+
 
   // ===== تسجيل الدخول =====
   Future<Map<String, dynamic>?> login(

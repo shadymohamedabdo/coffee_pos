@@ -1,20 +1,23 @@
 import 'package:coffee_pos/data/products_cubit/products_cubit.dart';
+import 'package:coffee_pos/data/shift_report_cubit/shift_report_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-
 import 'data/dashboard_cubit/dashboard_cubit.dart';
-import 'data/repositories/dashboard_repository.dart';
-import 'data/repositories/products_repository.dart';
-import 'data/repositories/users_repository.dart';
+import 'data/monthly_report_cubit/monthly_report_cubit.dart';
 import 'data/sale_cubit/sale_cubit.dart';
+import 'data/sale_cubit/sales_refresh_cubit.dart';
 import 'data/screens/login_screen.dart';
+import 'data/service_locator.dart';
 import 'data/user_cubit/user_cubit.dart';
 
 void main() {
+  setupServiceLocator();
+
   // تهيئة قاعدة البيانات للـ Windows/Desktop
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
+
   runApp(const CoffeePOSApp());
 }
 
@@ -23,21 +26,39 @@ class CoffeePOSApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  MultiBlocProvider(
-        providers: [
-          BlocProvider( create: (context) => DashboardCubit(DashboardRepository()),),
-          BlocProvider( create: (context) => ProductsCubit(ProductsRepository()),),
-          BlocProvider( create: (context) => UsersCubit(UsersRepository()),),
-          BlocProvider( create: (context) => AddSaleCubit(),),
+    final salesRefreshCubit = getIt<SalesRefreshCubit>();
 
+    return MultiBlocProvider(
+      providers: [
+        // المصدر المركزي للإشعارات
+        BlocProvider<SalesRefreshCubit>.value(value: salesRefreshCubit),
 
-
-        ],
-        child : MaterialApp(
-      title: 'Coffee POS',
-      theme: ThemeData(primarySwatch: Colors.brown),
-      home: const LoginScreen(),
-      debugShowCheckedModeBanner: false,
-    ));
+        BlocProvider<DashboardCubit>(
+          create: (_) => getIt<DashboardCubit>()..loadData(),
+        ),
+        BlocProvider<ShiftReportCubit>(
+          create: (_) => getIt<ShiftReportCubit>(),
+        ),
+        BlocProvider<MonthlyReportCubit>(
+          create: (_) => getIt<MonthlyReportCubit>(),
+        ),
+        BlocProvider<ProductsCubit>(
+          create: (_) => getIt<ProductsCubit>(),
+        ),
+        BlocProvider<UsersCubit>(
+          create: (_) => getIt<UsersCubit>()..loadEmployees(),
+        ),
+        BlocProvider<AddSaleCubit>(
+          create: (_) => getIt<AddSaleCubit>(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Coffee POS',
+        theme: ThemeData(primarySwatch: Colors.brown),
+        home: const LoginScreen(),
+        debugShowCheckedModeBanner: false,
+      ),
+    );
   }
 }
+

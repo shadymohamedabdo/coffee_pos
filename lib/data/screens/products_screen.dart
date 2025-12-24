@@ -32,13 +32,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   void applyFilters(List<Product> products) {
     final q = searchCtrl.text.toLowerCase();
-    filteredProducts =
-        products.where((p) => p.name.toLowerCase().contains(q)).toList();
+    filteredProducts = products
+        .where((p) => p.name.toLowerCase().contains(q))
+        .toList();
   }
 
   void showEditPriceDialog(Product product) {
-    final editPriceCtrl =
-    TextEditingController(text: product.price.toString());
+    final editPriceCtrl = TextEditingController(text: product.price.toString());
 
     showDialog(
       context: context,
@@ -63,9 +63,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               if (newPrice == null) return;
 
               // نستخدم context بتاع الشاشة مش dialog
-              context
-                  .read<ProductsCubit>()
-                  .updatePrice(product.id, newPrice);
+              context.read<ProductsCubit>().updatePrice(product.id, newPrice);
 
               Navigator.pop(dialogContext);
             },
@@ -104,41 +102,53 @@ class _ProductsScreenState extends State<ProductsScreen> {
                           children: [
                             TextField(
                               controller: nameCtrl,
-                              decoration:
-                              const InputDecoration(labelText: 'اسم المنتج'),
+                              decoration: const InputDecoration(
+                                labelText: 'اسم المنتج',
+                              ),
                             ),
                             const SizedBox(height: 12),
                             TextField(
                               controller: priceCtrl,
                               keyboardType: TextInputType.number,
-                              decoration:
-                              const InputDecoration(labelText: 'السعر'),
+                              decoration: const InputDecoration(
+                                labelText: 'السعر',
+                              ),
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField(
-                              value: category,
+                              initialValue: category,
                               items: const [
                                 DropdownMenuItem(
-                                    value: 'bean', child: Text('بن')),
+                                  value: 'bean',
+                                  child: Text('بن'),
+                                ),
                                 DropdownMenuItem(
-                                    value: 'drink', child: Text('مشروب')),
+                                  value: 'drink',
+                                  child: Text('مشروب'),
+                                ),
                               ],
                               onChanged: (v) => category = v!,
-                              decoration:
-                              const InputDecoration(labelText: 'الفئة'),
+                              decoration: const InputDecoration(
+                                labelText: 'الفئة',
+                              ),
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField(
                               value: unit,
                               items: const [
                                 DropdownMenuItem(
-                                    value: 'kg', child: Text('كيلو')),
+                                  value: 'kg',
+                                  child: Text('كيلو'),
+                                ),
                                 DropdownMenuItem(
-                                    value: 'cup', child: Text('كوب')),
+                                  value: 'cup',
+                                  child: Text('كوب'),
+                                ),
                               ],
                               onChanged: (v) => unit = v!,
-                              decoration:
-                              const InputDecoration(labelText: 'الوحدة'),
+                              decoration: const InputDecoration(
+                                labelText: 'الوحدة',
+                              ),
                             ),
                             const SizedBox(height: 16),
                             SizedBox(
@@ -149,8 +159,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                     name: nameCtrl.text,
                                     category: category,
                                     unit: unit,
-                                    price:
-                                    double.parse(priceCtrl.text),
+                                    price: double.parse(priceCtrl.text),
                                   );
                                   nameCtrl.clear();
                                   priceCtrl.clear();
@@ -172,8 +181,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       children: [
                         TextField(
                           controller: searchCtrl,
-                          decoration:
-                          const InputDecoration(labelText: 'بحث'),
+                          decoration: const InputDecoration(labelText: 'بحث'),
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),
@@ -187,30 +195,36 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                 DataColumn(label: Text('إجراءات')),
                               ],
                               rows: filteredProducts.map((p) {
-                                return DataRow(cells: [
-                                  DataCell(Text(p.name)),
-                                  DataCell(Text('${p.price}')),
-                                  DataCell(Text(p.unit)),
-                                  DataCell(
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.edit,
-                                              color: Colors.blue),
-                                          onPressed: () =>
-                                              showEditPriceDialog(p),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete,
-                                              color: Colors.red),
-                                          onPressed: () => context
-                                              .read<ProductsCubit>()
-                                              .deleteProduct(p.id),
-                                        ),
-                                      ],
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text(p.name)),
+                                    DataCell(Text('${p.price}')),
+                                    DataCell(Text(p.unit)),
+                                    DataCell(
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              color: Colors.blue,
+                                            ),
+                                            onPressed: () =>
+                                                showEditPriceDialog(p),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                            ),
+                                            onPressed: () => context
+                                                .read<ProductsCubit>()
+                                                .deleteProduct(p.id),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ]);
+                                  ],
+                                );
                               }).toList(),
                             ),
                           ),

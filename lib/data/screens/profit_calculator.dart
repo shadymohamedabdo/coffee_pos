@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../repositories/reports_repository.dart';
 
 class ProfitCalculatorScreen extends StatefulWidget {
@@ -43,7 +43,7 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
 
       final sales = data.fold<double>(
         0.0,
-            (sum, item) => sum + (item['total_amount'] as double),
+        (sum, item) => sum + (item['total_amount'] as double),
       );
 
       setState(() {
@@ -63,8 +63,10 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
 
   void calculate() {
     final rent = double.tryParse(rentCtrl.text.replaceAll(',', '')) ?? 0;
-    final salaries = double.tryParse(salariesCtrl.text.replaceAll(',', '')) ?? 0;
-    final electricity = double.tryParse(electricityCtrl.text.replaceAll(',', '')) ?? 0;
+    final salaries =
+        double.tryParse(salariesCtrl.text.replaceAll(',', '')) ?? 0;
+    final electricity =
+        double.tryParse(electricityCtrl.text.replaceAll(',', '')) ?? 0;
     final water = double.tryParse(waterCtrl.text.replaceAll(',', '')) ?? 0;
     final other = double.tryParse(otherCtrl.text.replaceAll(',', '')) ?? 0;
 
@@ -133,7 +135,9 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
           child: Card(
             margin: const EdgeInsets.all(24),
             elevation: 8,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: SingleChildScrollView(
@@ -147,20 +151,24 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                         child: isLoading
                             ? const CircularProgressIndicator()
                             : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.trending_up, color: Colors.teal, size: 32),
-                            const SizedBox(width: 12),
-                            Text(
-                              'إجمالي مبيعات الشهر: ${_formatter.format(totalSales)} جنيه',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.teal,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.trending_up,
+                                    color: Colors.teal,
+                                    size: 32,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'إجمالي مبيعات الشهر: ${_formatter.format(totalSales)} جنيه',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.teal,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -185,7 +193,10 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                           child: ElevatedButton.icon(
                             onPressed: calculate,
                             icon: const Icon(Icons.calculate),
-                            label: const Text('احسب الصافي', style: TextStyle(fontSize: 18)),
+                            label: const Text(
+                              'احسب الصافي',
+                              style: TextStyle(fontSize: 18),
+                            ),
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               backgroundColor: Colors.teal[600],
@@ -206,7 +217,9 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                       const SizedBox(height: 32),
                       Card(
                         elevation: 6,
-                        color: netProfit >= 0 ? Colors.green[50] : Colors.red[50],
+                        color: netProfit >= 0
+                            ? Colors.green[50]
+                            : Colors.red[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                           side: BorderSide(
@@ -219,9 +232,13 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                           child: Column(
                             children: [
                               Icon(
-                                netProfit >= 0 ? Icons.thumb_up : Icons.thumb_down,
+                                netProfit >= 0
+                                    ? Icons.thumb_up
+                                    : Icons.thumb_down,
                                 size: 48,
-                                color: netProfit >= 0 ? Colors.green : Colors.red,
+                                color: netProfit >= 0
+                                    ? Colors.green
+                                    : Colors.red,
                               ),
                               const SizedBox(height: 12),
                               Text(
@@ -231,7 +248,9 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: netProfit >= 0 ? Colors.green[800] : Colors.red[800],
+                                  color: netProfit >= 0
+                                      ? Colors.green[800]
+                                      : Colors.red[800],
                                 ),
                                 textAlign: TextAlign.center,
                               ),

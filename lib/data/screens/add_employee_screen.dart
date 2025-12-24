@@ -16,9 +16,7 @@ class AddEmployeeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (currentUser['role'] != 'admin') {
-      return const Scaffold(
-        body: Center(child: Text('غير مصرح لك بالدخول')),
-      );
+      return const Scaffold(body: Center(child: Text('غير مصرح لك بالدخول')));
     }
 
     final cubit = context.read<UsersCubit>();
@@ -70,9 +68,10 @@ class AddEmployeeScreen extends StatelessWidget {
                         value: role,
                         items: const [
                           DropdownMenuItem(
-                              value: 'employee', child: Text('موظف')),
-                          DropdownMenuItem(
-                              value: 'admin', child: Text('أدمن')),
+                            value: 'employee',
+                            child: Text('موظف'),
+                          ),
+                          DropdownMenuItem(value: 'admin', child: Text('أدمن')),
                         ],
                         onChanged: (v) => setState(() => role = v!),
                         decoration: const InputDecoration(
@@ -93,7 +92,8 @@ class AddEmployeeScreen extends StatelessWidget {
                     onPressed: () async {
                       if (nameCtrl.text.isEmpty ||
                           userCtrl.text.isEmpty ||
-                          passCtrl.text.length < 4) return;
+                          passCtrl.text.length < 4)
+                        return;
 
                       await cubit.addEmployee(
                         name: nameCtrl.text,
@@ -102,7 +102,9 @@ class AddEmployeeScreen extends StatelessWidget {
                         role: role,
                       );
 
-                      Navigator.pop(context);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
                     },
                   ),
                 ],
@@ -150,8 +152,9 @@ class AddEmployeeScreen extends StatelessWidget {
                   if (state is UsersLoaded) {
                     final q = searchCtrl.text.toLowerCase();
                     final list = state.employees
-                        .where((e) =>
-                        e['name'].toString().toLowerCase().contains(q))
+                        .where(
+                          (e) => e['name'].toString().toLowerCase().contains(q),
+                        )
                         .toList();
 
                     if (list.isEmpty) {
@@ -165,12 +168,10 @@ class AddEmployeeScreen extends StatelessWidget {
                         return Card(
                           child: ListTile(
                             title: Text(e['name']),
-                            subtitle: Text(
-                                '${e['username']} - ${e['role']}'),
+                            subtitle: Text('${e['username']} - ${e['role']}'),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () =>
-                                  cubit.deleteEmployee(e['id']),
+                              onPressed: () => cubit.deleteEmployee(e['id']),
                             ),
                           ),
                         );

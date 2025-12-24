@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart'; // 🔥 لازم تتأكد إنك ضفت المكتبة دي
 import '../shift_report_cubit/shift_report_cubit.dart';
-import '../shift_report_cubit/shift_report_state.dart';
 
 class ShiftReportScreen extends StatelessWidget {
   final Map<String, dynamic> currentUser;
@@ -29,7 +28,10 @@ class ShiftReportScreen extends StatelessWidget {
         listener: (context, state) {
           if (state is ShiftReportSuccess && state.error != null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.error!),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -43,7 +45,10 @@ class ShiftReportScreen extends StatelessWidget {
             final reportData = state.reportData;
             final totalSum = reportData
                 .where((r) => r['status'] == 'active')
-                .fold<double>(0, (sum, r) => sum + (r['total_amount'] as double));
+                .fold<double>(
+                  0,
+                  (sum, r) => sum + (r['total_amount'] as double),
+                );
 
             return Column(
               children: [
@@ -57,7 +62,10 @@ class ShiftReportScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
                           child: DropdownButtonFormField<int>(
                             initialValue: state.selectedShiftId,
                             hint: const Text('اختر الشيفت'),
@@ -84,7 +92,10 @@ class ShiftReportScreen extends StatelessWidget {
                                     Text(
                                       // 🔥 التعديل هنا: تنسيق التاريخ والوقت في القائمة
                                       '${s['type']} • ${formatDateTime(s['date'])}',
-                                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -106,10 +117,10 @@ class ShiftReportScreen extends StatelessWidget {
                           : () => context.read<ShiftReportCubit>().loadReport(),
                       child: state.isLoading
                           ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
                           : const Text('عرض التقرير'),
                     ),
                   ],
@@ -119,54 +130,71 @@ class ShiftReportScreen extends StatelessWidget {
                   child: reportData.isEmpty
                       ? const Center(child: Text('لا توجد بيانات لهذا الشيفت'))
                       : SingleChildScrollView(
-                    scrollDirection: Axis.horizontal, // مهم جداً عشان الجدول ميعملش Overflow
-                    child: SingleChildScrollView(
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('الموظف')),
-                          DataColumn(label: Text('المنتج')),
-                          DataColumn(label: Text('الكمية')),
-                          DataColumn(label: Text('سعر الوحدة')),
-                          DataColumn(label: Text('الإجمالي')),
-                          DataColumn(label: Text('إجراء')),
-                        ],
-                        rows: reportData.map((row) {
-                          final isCancelled = row['status'] == 'cancelled';
-                          return DataRow(
-                            color: WidgetStateProperty.all(
-                              isCancelled ? Colors.red[100] : null,
-                            ),
-                            cells: [
-                              DataCell(Text(row['employee_name'] ?? '')),
-                              DataCell(Text(row['product_name'] ?? '')),
-                              DataCell(Text(row['total_quantity'].toString())),
-                              DataCell(Text(row['unit_price'].toString())),
-                              DataCell(Text(row['total_amount'].toString())),
-                              DataCell(ElevatedButton(
-                                onPressed: () {
-                                  context.read<ShiftReportCubit>().toggleSaleStatus(
-                                    row['id'],
-                                    row['status'],
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: isCancelled ? Colors.green : Colors.red,
-                                ),
-                                child: Text(isCancelled ? 'تفعيل' : 'إلغاء'),
-                              )),
+                          scrollDirection: Axis
+                              .horizontal, // مهم جداً عشان الجدول ميعملش Overflow
+                          child: DataTable(
+                            dataRowMinHeight: 48,
+                            dataRowMaxHeight: 64,
+                            columns: const [
+                              DataColumn(label: Text('الموظف')),
+                              DataColumn(label: Text('المنتج')),
+                              DataColumn(label: Text('الكمية')),
+                              DataColumn(label: Text('سعر الوحدة')),
+                              DataColumn(label: Text('الإجمالي')),
+                              DataColumn(label: Text('إجراء')),
                             ],
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
+                            rows: reportData.map((row) {
+                              final isCancelled = row['status'] == 'cancelled';
+                              return DataRow(
+                                color: WidgetStateProperty.all(
+                                  isCancelled ? Colors.red[100] : null,
+                                ),
+                                cells: [
+                                  DataCell(Text(row['employee_name'] ?? '')),
+                                  DataCell(Text(row['product_name'] ?? '')),
+                                  DataCell(
+                                    Text(row['total_quantity'].toString()),
+                                  ),
+                                  DataCell(Text(row['unit_price'].toString())),
+                                  DataCell(
+                                    Text(row['total_amount'].toString()),
+                                  ),
+                                  DataCell(
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        context
+                                            .read<ShiftReportCubit>()
+                                            .toggleSaleStatus(
+                                              row['id'],
+                                              row['status'],
+                                            );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: isCancelled
+                                            ? Colors.green
+                                            : Colors.red,
+                                      ),
+                                      child: Text(
+                                        isCancelled ? 'تفعيل' : 'إلغاء',
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
                 ),
+
                 if (isAdmin && reportData.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       'إجمالي الشيفت: $totalSum جنيه',
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
               ],

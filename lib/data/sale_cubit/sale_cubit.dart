@@ -4,7 +4,6 @@ import '../monthly_report_cubit/monthly_report_cubit.dart';
 import '../repositories/products_repository.dart';
 import '../repositories/sales_repository.dart';
 import '../repositories/shifts_repository.dart';
-import '../shift_report_cubit/shift_report_cubit.dart';
 
 class AddSaleState {
   final String? selectedCategory; // 'bean' أو 'drink' أو null
@@ -59,54 +58,57 @@ class AddSaleState {
 }
 
 class AddSaleCubit extends Cubit<AddSaleState> {
-  final ProductsRepository productsRepo = ProductsRepository();
-  final SalesRepository salesRepo = SalesRepository();
-  final ShiftsRepository shiftsRepo = ShiftsRepository();
+  final ProductsRepository productsRepo;
+  final SalesRepository salesRepo;
+  final ShiftsRepository shiftsRepo;
 
-  AddSaleCubit() : super(AddSaleState());
+  AddSaleCubit(this.salesRepo, this.shiftsRepo, this.productsRepo)
+    : super(AddSaleState());
 
   Future<void> selectCategory(String category) async {
-    emit(state.copyWith(
-      isLoading: true,
-      selectedCategory: category,
-      selectedProductId: null,
-      unitPrice: 0.0,
-      quantity: 1.0,
-      amount: null,
-    ));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        selectedCategory: category,
+        selectedProductId: null,
+        unitPrice: 0.0,
+        quantity: 1.0,
+        amount: null,
+      ),
+    );
 
     final data = await productsRepo.getProductsByCategory(category);
-    emit(state.copyWith(
-      isLoading: false,
-      products: List<Map<String, dynamic>>.from(data),
-    ));
+    emit(
+      state.copyWith(
+        isLoading: false,
+        products: List<Map<String, dynamic>>.from(data),
+      ),
+    );
   }
 
   void selectProduct(int productId) {
     final product = state.products.firstWhere((p) => p['id'] == productId);
     final double newAmount = state.quantity * product['price'];
 
-    emit(state.copyWith(
-      selectedProductId: productId,
-      unitPrice: product['price'].toDouble(),
-      amount: newAmount,
-    ));
+    emit(
+      state.copyWith(
+        selectedProductId: productId,
+        unitPrice: product['price'].toDouble(),
+        amount: newAmount,
+      ),
+    );
   }
 
   void updateQuantity(double newQuantity) {
     final double newAmount = newQuantity * state.unitPrice;
-    emit(state.copyWith(
-      quantity: newQuantity,
-      amount: newAmount,
-    ));
+    emit(state.copyWith(quantity: newQuantity, amount: newAmount));
   }
 
   void updateAmount(double newAmount) {
-    final double newQuantity = state.unitPrice > 0 ? newAmount / state.unitPrice : 0.0;
-    emit(state.copyWith(
-      amount: newAmount,
-      quantity: newQuantity,
-    ));
+    final double newQuantity = state.unitPrice > 0
+        ? newAmount / state.unitPrice
+        : 0.0;
+    emit(state.copyWith(amount: newAmount, quantity: newQuantity));
   }
 
   void resetForm() {
@@ -126,10 +128,7 @@ class AddSaleCubit extends Cubit<AddSaleState> {
 
     final shift = await shiftsRepo.getOpenShift();
     if (shift == null) {
-      emit(state.copyWith(
-        isSaving: false,
-        errorMessage: 'لا يوجد شيفت مفتوح',
-      ));
+      emit(state.copyWith(isSaving: false, errorMessage: 'لا يوجد شيفت مفتوح'));
       return;
     }
 
@@ -142,17 +141,19 @@ class AddSaleCubit extends Cubit<AddSaleState> {
         unitPrice: state.unitPrice,
       );
 
-      context.read<MonthlyReportCubit>().reloadCurrentMonth();
-
+      if (context.mounted) {
+        context.read<MonthlyReportCubit>().reloadCurrentMonth();
+      }
 
       emit(state.copyWith(isSaving: false, saleSuccess: true));
       resetForm();
     } catch (e) {
-      emit(state.copyWith(
-        isSaving: false,
-        errorMessage: 'حدث خطأ أثناء حفظ البيع',
-      ));
+      emit(
+        state.copyWith(
+          isSaving: false,
+          errorMessage: 'حدث خطأ أثناء حفظ البيع',
+        ),
+      );
     }
   }
-
 }

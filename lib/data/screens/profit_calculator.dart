@@ -172,7 +172,7 @@ class _ProfitCalculatorScreenState extends State<ProfitCalculatorScreen> {
                     const SizedBox(height: 12),
                     buildField('فاتورة الكهرباء', electricityCtrl),
                     const SizedBox(height: 12),
-                    buildField('فاتورة المياه', waterCtrl),
+                    buildField('بضاعه', waterCtrl),
                     const SizedBox(height: 12),
                     buildField('مصروفات أخرى', otherCtrl),
 

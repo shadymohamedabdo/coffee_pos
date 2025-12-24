@@ -1,22 +1,29 @@
+// dashboard_state.dart
+
 import '../models/dashboard_model.dart';
 
-abstract class DashboardState {}
+sealed class DashboardState {}
 
-class DashboardInitial extends DashboardState {}
+final class DashboardInitial extends DashboardState {}
 
-class DashboardLoading extends DashboardState {}
+final class DashboardLoading extends DashboardState {}
 
-class DashboardLoaded extends DashboardState {
+final class DashboardLoaded extends DashboardState {
   final List<DailySale> dailySales;
   final List<ProductSale> topProducts;
+  final int selectedMonth; // ← جديد
+  final int selectedYear;  // ← جديد
 
   DashboardLoaded({
     required this.dailySales,
     required this.topProducts,
+    required this.selectedMonth,
+    required this.selectedYear,
   });
 }
 
-class DashboardError extends DashboardState {
+final class DashboardError extends DashboardState {
   final String message;
+
   DashboardError(this.message);
 }

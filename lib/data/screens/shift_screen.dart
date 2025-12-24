@@ -43,7 +43,7 @@ class _ShiftScreenState extends State<ShiftScreen> {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
-                      await repo.openShift('morning');
+                      await repo.openShift("صباحي");
                       await loadShift();
                     },
                     child: const Text('فتح شيفت صباحي'),
@@ -51,7 +51,7 @@ class _ShiftScreenState extends State<ShiftScreen> {
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () async {
-                      await repo.openShift('night');
+                      await repo.openShift('مسائي');
                       await loadShift();
                     },
                     child: const Text('فتح شيفت مسائي'),

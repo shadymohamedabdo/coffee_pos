@@ -12,7 +12,7 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('لوحة التحكم'),
+        title: const Text('الاحصائيات'),
         backgroundColor: Colors.brown.withOpacity(0.9),
         foregroundColor: Colors.white,
         centerTitle: true,
@@ -20,7 +20,7 @@ class DashboardScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => context.read<DashboardCubit>().loadData(),
+            onPressed: () => context.read<DashboardCubit>().reloadCurrentMonth(),
           ),
         ],
       ),
@@ -51,6 +51,50 @@ class DashboardScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
+                      // ===== اختيار الشهر والسنة =====
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          DropdownButton<int>(
+                            value: state.selectedMonth,
+                            items: List.generate(12, (index) {
+                              final month = index + 1;
+                              return DropdownMenuItem(
+                                value: month,
+                                child: Text('شهر $month'),
+                              );
+                            }),
+                            onChanged: (month) {
+                              if (month != null) {
+                                context
+                                    .read<DashboardCubit>()
+                                    .changeMonthYear(month, state.selectedYear);
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          DropdownButton<int>(
+                            value: state.selectedYear,
+                            items: List.generate(5, (index) {
+                              final year = DateTime.now().year - index;
+                              return DropdownMenuItem(
+                                value: year,
+                                child: Text('$year'),
+                              );
+                            }),
+                            onChanged: (year) {
+                              if (year != null) {
+                                context
+                                    .read<DashboardCubit>()
+                                    .changeMonthYear(state.selectedMonth, year);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
                       // ===== إجمالي المبيعات =====
                       Card(
                         color: Colors.green[700],
@@ -130,7 +174,7 @@ class DashboardScreen extends StatelessWidget {
                                 ),
                                 barGroups: state.dailySales.map((e) {
                                   return BarChartGroupData(
-                                    x: int.parse(e.day), // ✅ اليوم الحقيقي
+                                    x: int.parse(e.day),
                                     barRods: [
                                       BarChartRodData(
                                         toY: e.total,
@@ -180,8 +224,7 @@ class DashboardScreen extends StatelessWidget {
                                 final rank = entry.key + 1;
 
                                 return Padding(
-                                  padding:
-                                  const EdgeInsets.symmetric(vertical: 8),
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
                                   child: Row(
                                     children: [
                                       CircleAvatar(

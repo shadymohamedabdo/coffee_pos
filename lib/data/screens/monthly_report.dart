@@ -28,7 +28,7 @@ class MonthlyReportView extends StatelessWidget {
             icon: const Icon(Icons.refresh_rounded),
             tooltip: 'تحديث التقرير',
             onPressed: () {
-              context.read<MonthlyReportCubit>().reloadCurrentMonth(); // زر تحديث يدوي
+              context.read<MonthlyReportCubit>().reloadCurrentMonth();
             },
           ),
           const SizedBox(width: 8),
@@ -38,9 +38,62 @@ class MonthlyReportView extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // ===== اختيار الشهر والسنة (لو عايز تضيفهم تاني، أضفهم هنا) =====
-            // لو مفيش اختيار شهر، التقرير هيبقى للشهر الحالي تلقائي
+            // ===== Dropdown لاختيار الشهر والسنة =====
+            BlocBuilder<MonthlyReportCubit, MonthlyReportState>(
+              builder: (context, state) {
+                int currentMonth = DateTime.now().month;
+                int currentYear = DateTime.now().year;
 
+                if (state is MonthlyReportLoaded || state is MonthlyReportError) {
+                  currentMonth = state.month;
+                  currentYear = state.year;
+                }
+
+                // سنين متاحة (مثال: 2023 لغاية السنة الحالية)
+                final years = List.generate(
+                  DateTime.now().year - 2022 + 1,
+                      (index) => 2023 + index,
+                );
+
+                return Row(
+                  children: [
+                    const Text('اختر الشهر: ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    DropdownButton<int>(
+                      value: currentMonth,
+                      items: List.generate(12, (index) => index + 1)
+                          .map((month) => DropdownMenuItem(
+                        value: month,
+                        child: Text('شهر $month'),
+                      ))
+                          .toList(),
+                      onChanged: (month) {
+                        if (month != null) {
+                          context.read<MonthlyReportCubit>().changeMonth(month);
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    const Text('اختر السنة: ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    DropdownButton<int>(
+                      value: currentYear,
+                      items: years
+                          .map((year) => DropdownMenuItem(
+                        value: year,
+                        child: Text('$year'),
+                      ))
+                          .toList(),
+                      onChanged: (year) {
+                        if (year != null) {
+                          context.read<MonthlyReportCubit>().changeYear(year);
+                        }
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
             const SizedBox(height: 20),
 
             Expanded(
@@ -119,8 +172,8 @@ class MonthlyReportView extends StatelessWidget {
                                       cells: [
                                         DataCell(Text(row['product_name'] ?? '-', style: const TextStyle(fontWeight: FontWeight.w600))),
                                         DataCell(Text(row['total_quantity'].toString())),
-                                        DataCell(Text('${row['unit_price']} جنيه')),
-                                        DataCell(Text('${row['total_amount']} جنيه', style: const TextStyle(fontWeight: FontWeight.bold))),
+                                        DataCell(Text('${row['unit_price']}')),
+                                        DataCell(Text('${row['total_amount']}', style: const TextStyle(fontWeight: FontWeight.bold))),
                                       ],
                                     );
                                   }).toList(),
@@ -132,8 +185,8 @@ class MonthlyReportView extends StatelessWidget {
                         const SizedBox(height: 20),
                         Card(
                           elevation: 8,
-                          color: Colors.green[700],
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        color: Colors.brown[700],
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           child: Padding(
                             padding: const EdgeInsets.all(24),
                             child: Row(

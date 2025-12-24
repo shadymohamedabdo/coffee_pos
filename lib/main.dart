@@ -31,8 +31,12 @@ class CoffeePOSApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<DashboardCubit>(
-          create: (_) => getIt<DashboardCubit>()..loadData(),
+          create: (_) => getIt<DashboardCubit>()..loadData(
+            month: DateTime.now().month,
+            year: DateTime.now().year,
+          ),
         ),
+
         BlocProvider<ShiftReportCubit>(
           create: (_) => getIt<ShiftReportCubit>()..loadShifts(),
         ),

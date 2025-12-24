@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
         ),
       if (isAdmin)
         _buildMenuItem(
-          label: 'لوحة التحكم',
+          label: 'الاحصائيات',
           icon: Icons.dashboard,
           color: Colors.blue[700]!,
           onTap: () => Navigator.push(

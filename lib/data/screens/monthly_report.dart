@@ -17,15 +17,19 @@ class MonthlyReportView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.brown[50],
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('التقرير الشهري'),
-        backgroundColor: Colors.brown[700],
+        title: const Text(
+          'التقرير الشهري',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         centerTitle: true,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
             tooltip: 'تحديث التقرير',
             onPressed: () {
               context.read<MonthlyReportCubit>().reloadCurrentMonth();
@@ -34,251 +38,265 @@ class MonthlyReportView extends StatelessWidget {
           const SizedBox(width: 8),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // ===== Dropdown لاختيار الشهر والسنة =====
-            BlocBuilder<MonthlyReportCubit, MonthlyReportState>(
-              builder: (context, state) {
-                int currentMonth = DateTime.now().month;
-                int currentYear = DateTime.now().year;
-
-                if (state is MonthlyReportLoaded) {
-                  currentMonth = state.month;
-                  currentYear = state.year;
-                } else if (state is MonthlyReportError) {
-                  currentMonth = state.month;
-                  currentYear = state.year;
-                }
-
-                // سنين متاحة (مثال: 2023 لغاية السنة الحالية)
-                final years = List.generate(
-                  DateTime.now().year - 2022 + 1,
-                  (index) => 2023 + index,
-                );
-
-                return Row(
-                  children: [
-                    const Text(
-                      'اختر الشهر: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    DropdownButton<int>(
-                      value: currentMonth,
-                      items: List.generate(12, (index) => index + 1)
-                          .map(
-                            (month) => DropdownMenuItem(
-                              value: month,
-                              child: Text('شهر $month'),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (month) {
-                        if (month != null) {
-                          context.read<MonthlyReportCubit>().changeMonth(month);
-                        }
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    const Text(
-                      'اختر السنة: ',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    DropdownButton<int>(
-                      value: currentYear,
-                      items: years
-                          .map(
-                            (year) => DropdownMenuItem(
-                              value: year,
-                              child: Text('$year'),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (year) {
-                        if (year != null) {
-                          context.read<MonthlyReportCubit>().changeYear(year);
-                        }
-                      },
-                    ),
-                  ],
-                );
-              },
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: const NetworkImage(
+              'https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
             ),
-            const SizedBox(height: 20),
-
-            Expanded(
-              child: BlocBuilder<MonthlyReportCubit, MonthlyReportState>(
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withValues(alpha: 0.7),
+              BlendMode.darken,
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 100, 24, 24),
+          child: Column(
+            children: [
+              // ===== Dropdown لاختيار الشهر والسنة =====
+              BlocBuilder<MonthlyReportCubit, MonthlyReportState>(
                 builder: (context, state) {
-                  if (state is MonthlyReportLoading) {
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(color: Colors.brown),
-                          SizedBox(height: 20),
-                          Text(
-                            'جاري تحميل التقرير...',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  if (state is MonthlyReportError) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Colors.red,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            state.message,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 18,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
+                  int currentMonth = DateTime.now().month;
+                  int currentYear = DateTime.now().year;
 
                   if (state is MonthlyReportLoaded) {
-                    if (state.data.isEmpty) {
+                    currentMonth = state.month;
+                    currentYear = state.year;
+                  } else if (state is MonthlyReportError) {
+                    currentMonth = state.month;
+                    currentYear = state.year;
+                  }
+
+                  // سنين متاحة
+                  final years = List.generate(
+                    DateTime.now().year - 2022 + 1,
+                    (index) => 2023 + index,
+                  );
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'اختر الفترة: ',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        _buildDropdown<int>(
+                          value: currentMonth,
+                          items: List.generate(12, (index) => index + 1)
+                              .map(
+                                (month) => DropdownMenuItem(
+                                  value: month,
+                                  child: Text('شهر $month'),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (month) {
+                            if (month != null) {
+                              context.read<MonthlyReportCubit>().changeMonth(
+                                month,
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 16),
+                        _buildDropdown<int>(
+                          value: currentYear,
+                          items: years
+                              .map(
+                                (year) => DropdownMenuItem(
+                                  value: year,
+                                  child: Text('$year'),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (year) {
+                            if (year != null) {
+                              context.read<MonthlyReportCubit>().changeYear(
+                                year,
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+
+              Expanded(
+                child: BlocBuilder<MonthlyReportCubit, MonthlyReportState>(
+                  builder: (context, state) {
+                    if (state is MonthlyReportLoading) {
                       return const Center(
-                        child: Text(
-                          'لا توجد مبيعات في هذا الشهر',
-                          style: TextStyle(fontSize: 20, color: Colors.brown),
+                        child: CircularProgressIndicator(color: Colors.amber),
+                      );
+                    }
+
+                    if (state is MonthlyReportError) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: Colors.redAccent,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              state.message,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 18,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       );
                     }
 
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: Card(
-                            elevation: 6,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                    if (state is MonthlyReportLoaded) {
+                      if (state.data.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'لا توجد مبيعات في هذا الشهر',
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white70,
                             ),
-                            color: Colors.white,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
+                          ),
+                        );
+                      }
+
+                      return Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                ),
+                              ),
                               child: SingleChildScrollView(
-                                child: DataTable(
-                                  headingRowHeight: 56,
-                                  dataRowHeight: 60,
-                                  headingRowColor: MaterialStateProperty.all(
-                                    Colors.brown[400],
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    textTheme: Theme.of(context).textTheme
+                                        .apply(
+                                          bodyColor: Colors.white,
+                                          displayColor: Colors.white,
+                                        ),
+                                    dataTableTheme: DataTableThemeData(
+                                      headingTextStyle: const TextStyle(
+                                        color: Colors.amber,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      dataTextStyle: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      headingRowColor: WidgetStateProperty.all(
+                                        Colors.black.withValues(alpha: 0.2),
+                                      ),
+                                    ),
                                   ),
-                                  columns: const [
-                                    DataColumn(
-                                      label: Text(
-                                        'المنتج',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Text(
-                                        'الكمية',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Text(
-                                        'السعر',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Text(
-                                        'الإجمالي',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  rows: state.data.map((row) {
-                                    return DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Text(
-                                            row['product_name'] ?? '-',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
+                                  child: DataTable(
+                                    headingRowHeight: 56,
+                                    dataRowMinHeight: 60,
+                                    dataRowMaxHeight: 60,
+                                    columnSpacing: 24,
+                                    columns: const [
+                                      DataColumn(label: Text('المنتج')),
+                                      DataColumn(label: Text('الكمية')),
+                                      DataColumn(label: Text('سعر الوحدة')),
+                                      DataColumn(label: Text('الإجمالي')),
+                                    ],
+                                    rows: state.data.map((row) {
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(
+                                            Text(
+                                              row['product_name'] ?? '-',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            row['total_quantity'].toString(),
-                                          ),
-                                        ),
-                                        DataCell(Text('${row['unit_price']}')),
-                                        DataCell(
-                                          Text(
-                                            '${row['total_amount']}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
+                                          DataCell(
+                                            Text(
+                                              row['total_quantity'].toString(),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
+                                          DataCell(
+                                            Text('${row['unit_price']}'),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              '${row['total_amount']}',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.amberAccent,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        Card(
-                          elevation: 8,
-                          color: Colors.brown[700],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Padding(
+                          const SizedBox(height: 24),
+                          Container(
                             padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.amber.shade700,
+                                  Colors.amber.shade900,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 10,
+                                  offset: Offset(0, 5),
+                                ),
+                              ],
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Icon(
                                   Icons.account_balance_wallet,
-                                  size: 40,
+                                  size: 32,
                                   color: Colors.white,
                                 ),
                                 const SizedBox(width: 16),
                                 Text(
                                   'الإجمالي الكلي: ${state.totalSum.toStringAsFixed(2)} جنيه',
                                   style: const TextStyle(
-                                    fontSize: 26,
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
@@ -286,16 +304,41 @@ class MonthlyReportView extends StatelessWidget {
                               ],
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  }
+                        ],
+                      );
+                    }
 
-                  return const SizedBox();
-                },
+                    return const SizedBox();
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdown<T>({
+    required T value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          value: value,
+          items: items,
+          onChanged: onChanged,
+          dropdownColor: Colors.grey[900],
+          style: const TextStyle(color: Colors.white),
+          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.amber),
         ),
       ),
     );

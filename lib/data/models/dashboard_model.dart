@@ -1,5 +1,4 @@
 import '../database_helper.dart';
-import '../models/dashboard_model.dart';
 
 class DashboardRepository {
   /// جلب المبيعات اليومية
@@ -7,7 +6,8 @@ class DashboardRepository {
     final db = await DatabaseHelper.instance.database;
     final monthStr = month.toString().padLeft(2, '0');
 
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT 
         strftime('%d', created_at) as day,
         SUM(quantity * unit_price) as total
@@ -17,12 +17,18 @@ class DashboardRepository {
         AND status = 'active'
       GROUP BY day
       ORDER BY day
-    ''', [monthStr, year.toString()]);
+    ''',
+      [monthStr, year.toString()],
+    );
 
-    return result.map((e) => DailySale(
-      day: e['day'].toString(),
-      total: (e['total'] as num).toDouble(),
-    )).toList();
+    return result
+        .map(
+          (e) => DailySale(
+            day: e['day'].toString(),
+            total: (e['total'] as num).toDouble(),
+          ),
+        )
+        .toList();
   }
 
   /// أعلى 5 منتجات مبيعًا
@@ -30,7 +36,8 @@ class DashboardRepository {
     final db = await DatabaseHelper.instance.database;
     final monthStr = month.toString().padLeft(2, '0');
 
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT 
         p.name     AS product_name,
         p.category AS category,
@@ -43,15 +50,22 @@ class DashboardRepository {
       GROUP BY s.product_id
       ORDER BY total_quantity DESC
       LIMIT 5
-    ''', [monthStr, year.toString()]);
+    ''',
+      [monthStr, year.toString()],
+    );
 
-    return result.map((e) => ProductSale(
-      productName: e['product_name'].toString(),
-      category: e['category'].toString(),
-      totalQuantity: (e['total_quantity'] as num).toDouble(),
-    )).toList();
+    return result
+        .map(
+          (e) => ProductSale(
+            productName: e['product_name'].toString(),
+            category: e['category'].toString(),
+            totalQuantity: (e['total_quantity'] as num).toDouble(),
+          ),
+        )
+        .toList();
   }
 }
+
 class DailySale {
   final String day;
   final double total;

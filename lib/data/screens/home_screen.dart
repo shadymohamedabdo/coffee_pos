@@ -23,7 +23,8 @@ class HomeScreen extends StatelessWidget {
     final Widget mainSaleButton = _buildMenuItem(
       label: 'تسجيل بيع',
       icon: Icons.add_shopping_cart,
-      color: Colors.green[700]!,
+      color: Colors
+          .green, // Keep green logic but styled differently in internal method? Or just pass base color
       onTap: () {
         Navigator.push(
           context,
@@ -32,7 +33,7 @@ class HomeScreen extends StatelessWidget {
           ),
         );
       },
-      isMain: true, // عشان يبقى أكبر وأبرز
+      isMain: true,
     );
 
     // باقي الأزرار
@@ -40,7 +41,7 @@ class HomeScreen extends StatelessWidget {
       _buildMenuItem(
         label: 'تقرير الشيفت',
         icon: Icons.receipt_long,
-        color: Colors.orange[600]!,
+        color: Colors.orange,
         onTap: () {
           Navigator.push(
             context,
@@ -54,7 +55,7 @@ class HomeScreen extends StatelessWidget {
         _buildMenuItem(
           label: 'التقرير الشهري',
           icon: Icons.calendar_month,
-          color: Colors.teal[600]!,
+          color: Colors.teal,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const MonthlyReportScreen()),
@@ -62,9 +63,9 @@ class HomeScreen extends StatelessWidget {
         ),
       if (isAdmin)
         _buildMenuItem(
-          label: 'حاسبة صافي الربح', // ← الزر الجديد
+          label: 'حاسبة صافي الربح',
           icon: Icons.calculate,
-          color: Colors.teal[500]!,
+          color: Colors.amber,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ProfitCalculatorScreen()),
@@ -74,7 +75,7 @@ class HomeScreen extends StatelessWidget {
         _buildMenuItem(
           label: 'الاحصائيات',
           icon: Icons.dashboard,
-          color: Colors.blue[700]!,
+          color: Colors.blue,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const DashboardScreen()),
@@ -84,7 +85,7 @@ class HomeScreen extends StatelessWidget {
         _buildMenuItem(
           label: 'إدارة الشيفتات',
           icon: Icons.access_time,
-          color: Colors.red[600]!,
+          color: Colors.red,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ShiftScreen()),
@@ -94,7 +95,7 @@ class HomeScreen extends StatelessWidget {
         _buildMenuItem(
           label: 'إدارة المنتجات',
           icon: Icons.coffee,
-          color: Colors.brown[600]!,
+          color: Colors.brown,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ProductsScreen()),
@@ -104,7 +105,7 @@ class HomeScreen extends StatelessWidget {
         _buildMenuItem(
           label: 'إدارة الموظفين',
           icon: Icons.people,
-          color: Colors.purple[600]!,
+          color: Colors.purple,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -115,15 +116,19 @@ class HomeScreen extends StatelessWidget {
     ];
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('نظام POS - محل البن'),
+        title: const Text(
+          'نظام POS - محل البن',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.brown[700],
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        elevation: 4,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white),
             tooltip: 'تسجيل خروج',
             onPressed: () {
               Navigator.pushReplacement(
@@ -134,33 +139,59 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.custom(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isLargeScreen ? 4 : 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: isLargeScreen ? 1.8 : 1.4,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: const NetworkImage(
+              'https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
+            ),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withValues(alpha: 0.7),
+              BlendMode.darken,
+            ),
           ),
-          childrenDelegate: SliverChildListDelegate([
-            ...otherButtons,
-            if (otherButtons.length % 2 != 0 && !isLargeScreen)
-              const SizedBox.shrink(),
-            Center(child: mainSaleButton),
-          ]),
         ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        color: Colors.brown[700],
-        child: Text(
-          'مرحباً، ${currentUser['name'] ?? currentUser['username']}',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 100, 16, 16),
+          child: Center(
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1000),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'مرحباً، ${currentUser['name'] ?? currentUser['username']}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isLargeScreen ? 4 : 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.1,
+                      ),
+                      itemCount: otherButtons.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == otherButtons.length) {
+                          return mainSaleButton;
+                        }
+                        return otherButtons[index];
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -174,44 +205,60 @@ class HomeScreen extends StatelessWidget {
     required VoidCallback onTap,
     bool isMain = false,
   }) {
-    final double iconSize = isMain ? 64 : 48;
-    final double fontSize = isMain ? 22 : 18;
-    final EdgeInsets padding = isMain
-        ? const EdgeInsets.symmetric(vertical: 24, horizontal: 32)
-        : const EdgeInsets.all(16);
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: padding,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              color.withOpacity(0.95),
-              color.withOpacity(0.75),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isMain
+                ? color.withValues(alpha: 0.5)
+                : Colors.white.withValues(alpha: 0.2),
+            width: isMain ? 2 : 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 10,
-              offset: const Offset(0, 6),
+              offset: const Offset(0, 5),
             ),
           ],
+          gradient: isMain
+              ? LinearGradient(
+                  colors: [
+                    color.withValues(alpha: 0.3),
+                    color.withValues(alpha: 0.1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: iconSize, color: Colors.white),
-            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Icon(icon, size: isMain ? 40 : 32, color: Colors.white),
+            ),
+            const SizedBox(height: 16),
             Text(
               label,
-              style: TextStyle(
-                fontSize: fontSize,
+              style: const TextStyle(
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),

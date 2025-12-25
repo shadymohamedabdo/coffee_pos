@@ -12,8 +12,6 @@ class DatabaseHelper {
   static final _salesStreamController = StreamController<void>.broadcast();
   static Stream<void> get salesStream => _salesStreamController.stream;
 
-
-
   Future<Database> get database async {
     if (_db != null) return _db!;
     _db = await _initDB('coffee_pos.db');
@@ -28,6 +26,9 @@ class DatabaseHelper {
       path,
       version: 7, // 👈 غيرنا الرقم من 5 لـ 6
       onCreate: _createDB,
+      onOpen: (db) async {
+        await _createDefaultAdmin(db);
+      },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 7) {
           // هنا بنقوله لو النسخة قديمة، امسح الجداول القديمة واعملها من جديد
@@ -79,7 +80,6 @@ class DatabaseHelper {
       )
     ''');
 
-
     // جدول الشيفتات
     await db.execute('''
       CREATE TABLE IF NOT EXISTS shifts (
@@ -92,6 +92,7 @@ class DatabaseHelper {
 
     await _createDefaultAdmin(db);
   }
+
   // دالة بناديها لما نغير أي حاجة في المبيعات
   static void notifySalesChanged() {
     _salesStreamController.add(null);
@@ -101,7 +102,7 @@ class DatabaseHelper {
     final result = await db.query(
       'users',
       where: 'username = ?',
-      whereArgs: ['admin'],
+      whereArgs: ['shady'],
     );
 
     if (result.isEmpty) {

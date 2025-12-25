@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'data/dashboard_cubit/dashboard_cubit.dart';
 import 'data/monthly_report_cubit/monthly_report_cubit.dart';
@@ -54,7 +55,20 @@ class CoffeePOSApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Coffee POS',
-        theme: ThemeData(primarySwatch: Colors.brown),
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF6F4E37), // Coffee color
+            secondary: const Color(0xFFD2B48C), // Tan
+          ),
+          fontFamily: GoogleFonts.cairo().fontFamily,
+          textTheme: GoogleFonts.cairoTextTheme(),
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.9),
+          ),
+        ),
         home: const LoginScreen(),
         debugShowCheckedModeBanner: false,
       ),
